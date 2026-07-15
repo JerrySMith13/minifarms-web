@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Blog | Mini Farms USA</title>
+		<link rel="stylesheet" href="css/common.css" />
+		<link rel="stylesheet" href="css/blog.css" />
+	</head>
+	<body>
+		<!-- ================= TOP NAVIGATION ================= -->
+		<header class="navbar">
+			<div class="navbar-logo">
+				<div class="navbar-logo-placeholder">MF</div>
+				<span class="navbar-logo-text">Mini Farms USA</span>
+			</div>
+			<nav class="navbar-links">
+				<ul>
+					<li><a href="index.html">Home</a></li>
+					<li><a href="about.html">About Us</a></li>
+					<li><a href="blog.html" class="active">Blog</a></li>
+					<li><a href="contact.html">Contact Us</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<!-- ================= BLOG LISTING ================= -->
+		<section class="section-padding">
+			<div class="container">
+				<div class="blog-header">
+					<h1>Blog</h1>
+					<p>
+						Updates from our mini farms, stories from the neighborhoods we
+						work in, and news from the fight to end food deserts.
+					</p>
+				</div>
+
+				<!--
+					BLOG POST CARD TEMPLATE
+					Each .blog-post-card below is one post preview. Duplicate the
+					block to add another post, or generate these server-side from
+					MINIFARMS_BLOG_KV and repeat this markup per stored post.
+				-->
+				<div class="blog-list">
+					<article class="blog-post-card">
+						<img
+							class="blog-post-image"
+							src="images/blog-post-1.jpg"
+							alt="Volunteers planting seedlings at a mini farm"
+						/>
+						<div class="blog-post-body">
+							<p class="blog-post-meta">July 10, 2026 &middot; Farm Updates</p>
+							<h3 class="blog-post-title">Our Newest Mini Farm Breaks Ground</h3>
+							<p class="blog-post-excerpt">
+								This month we broke ground on our fifth mini farm, turning a
+								long-vacant lot into a growing space for the whole block.
+							</p>
+							<a href="#" class="blog-post-readmore">Read More &rarr;</a>
+						</div>
+					</article>
+
+					<article class="blog-post-card">
+						<img
+							class="blog-post-image"
+							src="images/blog-post-2.jpg"
+							alt="A family picking up fresh produce"
+						/>
+						<div class="blog-post-body">
+							<p class="blog-post-meta">June 22, 2026 &middot; Community</p>
+							<h3 class="blog-post-title">1,000 Pounds of Produce Distributed</h3>
+							<p class="blog-post-excerpt">
+								Thanks to our volunteers and partner pantries, this season's
+								harvest reached over a thousand pounds of fresh vegetables.
+							</p>
+							<a href="#" class="blog-post-readmore">Read More &rarr;</a>
+						</div>
+					</article>
+
+					<article class="blog-post-card">
+						<img
+							class="blog-post-image"
+							src="images/blog-post-3.jpg"
+							alt="A volunteer teaching a gardening class"
+						/>
+						<div class="blog-post-body">
+							<p class="blog-post-meta">May 30, 2026 &middot; Education</p>
+							<h3 class="blog-post-title">Growing Skills, Not Just Vegetables</h3>
+							<p class="blog-post-excerpt">
+								Our new youth gardening program is teaching the next
+								generation how to grow, harvest, and cook their own food.
+							</p>
+							<a href="#" class="blog-post-readmore">Read More &rarr;</a>
+						</div>
+					</article>
+				</div>
+			</div>
+		</section>
+
+		<!-- ================= FOOTER ================= -->
+		<footer class="site-footer">
+			<div class="footer-content">
+				<p class="footer-copyright">
+					&copy; 2026 Mini Farms USA. All rights reserved.
+				</p>
+				<nav class="footer-links">
+					<ul>
+						<li><a href="index.html">Home</a></li>
+						<li><a href="about.html">About Us</a></li>
+						<li><a href="contact.html">Contact Us</a></li>
+					</ul>
+				</nav>
+			</div>
+		</footer>
+	</body>
+</html>

@@ -1,0 +1,139 @@
+/* ============================================================
+   HOME.CSS
+   Page-specific styles for index.html (the home page).
+   Load AFTER common.css.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   HERO SECTION
+   Full-width banner with a background image and an overlay so
+   the heading/subtext stay readable on top of any photo.
+
+   TO CHANGE THE PHOTO: edit the url() below.
+   TO CHANGE THE HEIGHT: edit min-height.
+   TO CHANGE THE DARKNESS OF THE OVERLAY: edit --color-overlay
+   in common.css (used by .hero-overlay).
+   ------------------------------------------------------------ */
+.hero {
+	position: relative;
+	min-height: 70vh;
+	background-image: url("../images/hero-background.jpg");
+	background-size: cover;
+	background-position: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.hero-overlay {
+	position: absolute;
+	inset: 0;
+	background-color: var(--color-overlay);
+}
+
+.hero-content {
+	position: relative; /* sits above .hero-overlay */
+	z-index: 1;
+	text-align: center;
+	color: #ffffff;
+	max-width: 700px;
+	padding: 0 1.5rem;
+}
+
+.hero-content h1 {
+	color: #ffffff;
+	margin-bottom: 1rem;
+}
+
+.hero-content p {
+	font-size: 1.1rem;
+	margin-bottom: 2rem;
+}
+
+/* ------------------------------------------------------------
+   IMPACT / MISSION CARDS
+   Three-column grid on desktop, single column on mobile.
+   TO ADD/REMOVE A CARD: duplicate/delete an .impact-card in the
+   HTML - the grid reflows automatically.
+   ------------------------------------------------------------ */
+.impact-cards {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 2rem;
+	margin-top: 2.5rem;
+}
+
+.impact-card {
+	background-color: var(--color-bg);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	padding: 1.75rem;
+	text-align: center;
+}
+
+.impact-card-icon {
+	width: 56px;
+	height: 56px;
+	margin: 0 auto 1rem;
+	border-radius: 50%;
+	background-color: var(--color-primary);
+	color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.impact-card h3 {
+	margin-bottom: 0.5rem;
+}
+
+.impact-card p {
+	color: var(--color-text-light);
+	font-size: var(--font-size-small);
+	margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+	.impact-cards {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ------------------------------------------------------------
+   CALL-TO-ACTION BANNER
+   Second background-image section further down the page, used
+   to invite donations/volunteering. Same override pattern as
+   .hero above: change the url() to swap the photo.
+   ------------------------------------------------------------ */
+.cta-banner {
+	position: relative;
+	background-image: url("../images/cta-background.jpg");
+	background-size: cover;
+	background-position: center;
+	padding: 4rem 1.5rem;
+	text-align: center;
+}
+
+.cta-banner-overlay {
+	position: absolute;
+	inset: 0;
+	background-color: var(--color-overlay);
+}
+
+.cta-banner-content {
+	position: relative;
+	z-index: 1;
+	color: #ffffff;
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+.cta-banner-content h2 {
+	color: #ffffff;
+}
+
+.cta-banner-content .btn {
+	margin: 0.5rem;
+}
