@@ -1,0 +1,35 @@
+<!--
+	PARTIAL: blog-card.html
+	A single blog post preview card. The Worker should fetch this partial
+	once, then clone and populate it for each post stored in KV.
+
+	data-dynamic attributes:
+	  image-link  — src URL for the card's thumbnail image
+	  category    — category label, e.g. "Farm Updates"
+	  author      — author display name, e.g. "Jane Smith"
+	  title       — post title (also used as the image alt text)
+	  content     — short excerpt; Worker should truncate the full body to
+	                ~160 characters before injecting here
+	  link        — URL of the full blog-post.html page for this post
+	               (set on both the image anchor and the Read More link)
+-->
+<article class="blog-post-card">
+	<a data-dynamic="link" href="">
+		<img
+			class="blog-post-image"
+			data-dynamic="image-link"
+			src=""
+			alt=""
+		/>
+	</a>
+	<div class="blog-post-body">
+		<p class="blog-post-meta">
+			<span class="blog-post-category" data-dynamic="category">Category</span>
+			&middot;
+			By <span data-dynamic="author">Author Name</span>
+		</p>
+		<h3 class="blog-post-title" data-dynamic="title">Post Title</h3>
+		<p class="blog-post-excerpt" data-dynamic="content">Post excerpt goes here.</p>
+		<a class="blog-post-readmore" data-dynamic="link" href="">Read More &rarr;</a>
+	</div>
+</article>

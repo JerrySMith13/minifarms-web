@@ -32,64 +32,52 @@
 			<div class="hero-content">
 				<h1>Helping End Food Deserts in the KC Metro</h1>
 				<p>
-					Mini Farms USA builds small-scale urban farms in underserved
-					neighborhoods, putting fresh, healthy food back within walking
-					distance of every family we serve.
+					Lorem ipsum dolor sit amet consectetur adipiscing elit. 
+					Consectetur adipiscing elit quisque faucibus ex sapien vitae. 
+					Ex sapien vitae pellentesque sem placerat in id. Placerat in 
+					id cursus mi pretium tellus duis. Pretium tellus duis convallis tempus leo 
+					eu aenean.
 				</p>
 				<a href="contact.html" class="btn btn-primary">Get Involved</a>
 			</div>
 		</section>
-
-		<!-- ================= MISSION / IMPACT ================= -->
-		<section class="section-padding">
+		<!-- ================= RECENT BLOG POSTS ================= -->
+		<!--
+			The Worker should inject the same blog cards here as on blog.html.
+			Fetch partials/blog-card.html, clone it per post from MINIFARMS_BLOG_KV
+			(limit to 3 for the home page), and inject inside .blog-list below.
+		-->
+		<section class="section-padding section-alt-bg">
 			<div class="container">
-				<h2>What We Do</h2>
-				<p>
-					We partner with local communities to design, build, and maintain
-					mini farms on underused lots, turning them into lasting sources of
-					fresh produce, jobs, and neighborhood pride.
-				</p>
-				<div class="impact-cards">
-					<div class="impact-card">
-						<div class="impact-card-icon">1</div>
-						<h3>Build Mini Farms</h3>
-						<p>
-							We convert vacant lots into productive growing spaces designed
-							for long-term community use.
-						</p>
-					</div>
-					<div class="impact-card">
-						<div class="impact-card-icon">2</div>
-						<h3>Distribute Fresh Food</h3>
-						<p>
-							Produce grown on-site is distributed directly to nearby
-							residents and area food pantries.
-						</p>
-					</div>
-					<div class="impact-card">
-						<div class="impact-card-icon">3</div>
-						<h3>Educate &amp; Employ</h3>
-						<p>
-							Neighbors learn to grow, harvest, and sell food, building
-							skills and income along the way.
-						</p>
-					</div>
+				<div class="blog-header">
+					<h2>From the Blog</h2>
+					<p>Stories from the field, farm updates, and news from our community.</p>
 				</div>
-			</div>
-		</section>
-
-		<!-- ================= CALL TO ACTION BANNER ================= -->
-		<section class="cta-banner">
-			<div class="cta-banner-overlay"></div>
-			<div class="cta-banner-content">
-				<h2>Join Us in Growing Change</h2>
-				<p>
-					Whether you can volunteer an afternoon, donate supplies, or spread
-					the word, every bit of support helps a neighborhood grow its own
-					food.
-				</p>
-				<a href="contact.html" class="btn btn-primary">Contact Us</a>
-				<a href="about.html" class="btn btn-outline">Learn More</a>
+				<div class="blog-list">
+					<article class="blog-post-card">
+						<a data-dynamic="link" href="">
+							<img
+								class="blog-post-image"
+								data-dynamic="image-link"
+								src=""
+								alt=""
+							/>
+						</a>
+						<div class="blog-post-body">
+							<p class="blog-post-meta">
+								<span class="blog-post-category" data-dynamic="category">Category</span>
+								&middot;
+								By <span data-dynamic="author">Author Name</span>
+							</p>
+							<h3 class="blog-post-title" data-dynamic="title">Post Title</h3>
+							<p class="blog-post-excerpt" data-dynamic="content">Post excerpt goes here.</p>
+							<a class="blog-post-readmore" data-dynamic="link" href="">Read More &rarr;</a>
+						</div>
+					</article>
+				</div>
+				<div class="blog-view-all">
+					<a href="blog.html" class="btn btn-primary">View All Posts</a>
+				</div>
 			</div>
 		</section>
 
