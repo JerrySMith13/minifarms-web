@@ -37,59 +37,29 @@
 
 				<!--
 					BLOG POST CARD TEMPLATE
-					Each .blog-post-card below is one post preview. Duplicate the
-					block to add another post, or generate these server-side from
-					MINIFARMS_BLOG_KV and repeat this markup per stored post.
+					The Worker should fetch partials/blog-card.html, then clone and
+					populate one instance per post from MINIFARMS_BLOG_KV, and inject
+					the resulting HTML inside .blog-list below.
 				-->
 				<div class="blog-list">
 					<article class="blog-post-card">
-						<img
-							class="blog-post-image"
-							src="images/blog-post-1.jpg"
-							alt="Volunteers planting seedlings at a mini farm"
-						/>
+						<a data-dynamic="link" href="">
+							<img
+								class="blog-post-image"
+								data-dynamic="image-link"
+								src=""
+								alt=""
+							/>
+						</a>
 						<div class="blog-post-body">
-							<p class="blog-post-meta">July 10, 2026 &middot; Farm Updates</p>
-							<h3 class="blog-post-title">Our Newest Mini Farm Breaks Ground</h3>
-							<p class="blog-post-excerpt">
-								This month we broke ground on our fifth mini farm, turning a
-								long-vacant lot into a growing space for the whole block.
+							<p class="blog-post-meta">
+								<span class="blog-post-category" data-dynamic="category">Category</span>
+								&middot;
+								By <span data-dynamic="author">Author Name</span>
 							</p>
-							<a href="#" class="blog-post-readmore">Read More &rarr;</a>
-						</div>
-					</article>
-
-					<article class="blog-post-card">
-						<img
-							class="blog-post-image"
-							src="images/blog-post-2.jpg"
-							alt="A family picking up fresh produce"
-						/>
-						<div class="blog-post-body">
-							<p class="blog-post-meta">June 22, 2026 &middot; Community</p>
-							<h3 class="blog-post-title">1,000 Pounds of Produce Distributed</h3>
-							<p class="blog-post-excerpt">
-								Thanks to our volunteers and partner pantries, this season's
-								harvest reached over a thousand pounds of fresh vegetables.
-							</p>
-							<a href="#" class="blog-post-readmore">Read More &rarr;</a>
-						</div>
-					</article>
-
-					<article class="blog-post-card">
-						<img
-							class="blog-post-image"
-							src="images/blog-post-3.jpg"
-							alt="A volunteer teaching a gardening class"
-						/>
-						<div class="blog-post-body">
-							<p class="blog-post-meta">May 30, 2026 &middot; Education</p>
-							<h3 class="blog-post-title">Growing Skills, Not Just Vegetables</h3>
-							<p class="blog-post-excerpt">
-								Our new youth gardening program is teaching the next
-								generation how to grow, harvest, and cook their own food.
-							</p>
-							<a href="#" class="blog-post-readmore">Read More &rarr;</a>
+							<h3 class="blog-post-title" data-dynamic="title">Post Title</h3>
+							<p class="blog-post-excerpt" data-dynamic="content">Post excerpt goes here.</p>
+							<a class="blog-post-readmore" data-dynamic="link" href="">Read More &rarr;</a>
 						</div>
 					</article>
 				</div>

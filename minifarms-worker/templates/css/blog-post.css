@@ -1,0 +1,160 @@
+/* ============================================================
+   BLOG-POST.CSS
+   Page-specific styles for blog-post.html - a single post view.
+   Load AFTER common.css.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   HERO IMAGE
+   TO CHANGE HEIGHT: edit --post-hero-height below.
+   The image is always cover-cropped; the Worker only needs to
+   supply a valid src URL via data-dynamic="image-link".
+   ------------------------------------------------------------ */
+:root {
+	--post-hero-height: 420px;
+}
+
+.post-hero {
+	width: 100%;
+	height: var(--post-hero-height);
+	overflow: hidden;
+	background-color: var(--color-bg-alt); /* shown while image loads */
+}
+
+.post-hero-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	display: block;
+}
+
+/* ------------------------------------------------------------
+   POST LAYOUT
+   Single centered column, narrower than the default .container
+   so long lines don't become hard to read.
+   TO CHANGE COLUMN WIDTH: edit --post-max-width.
+   ------------------------------------------------------------ */
+:root {
+	--post-max-width: 720px;
+}
+
+.post-layout {
+	max-width: var(--post-max-width);
+}
+
+/* ------------------------------------------------------------
+   BREADCRUMB
+   ------------------------------------------------------------ */
+.post-breadcrumb {
+	margin-bottom: 1.75rem;
+	font-size: var(--font-size-small);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+/* ------------------------------------------------------------
+   META ROW  (category · by author)
+   ------------------------------------------------------------ */
+.post-meta {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+	font-size: var(--font-size-small);
+	color: var(--color-text-light);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.post-category {
+	color: var(--color-primary);
+	font-weight: bold;
+}
+
+.post-meta-sep {
+	color: var(--color-border);
+}
+
+/* ------------------------------------------------------------
+   POST TITLE
+   ------------------------------------------------------------ */
+.post-title {
+	font-size: calc(var(--font-size-h1) * 0.9);
+	line-height: 1.2;
+	margin-bottom: 2rem;
+}
+
+/* ------------------------------------------------------------
+   POST BODY CONTENT
+   Styles all standard block elements the Worker may inject
+   without requiring extra classes on each tag.
+   ------------------------------------------------------------ */
+.post-content {
+	color: var(--color-text);
+	font-size: var(--font-size-base);
+	line-height: 1.8;
+}
+
+.post-content p {
+	margin-top: 0;
+	margin-bottom: 1.25rem;
+}
+
+.post-content h2 {
+	font-size: var(--font-size-h2);
+	margin-top: 2.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.post-content h3 {
+	font-size: var(--font-size-h3);
+	margin-top: 2rem;
+	margin-bottom: 0.5rem;
+}
+
+.post-content h4 {
+	font-size: 1.15rem;
+	font-family: var(--font-heading);
+	margin-top: 1.5rem;
+	margin-bottom: 0.4rem;
+}
+
+.post-content ul,
+.post-content ol {
+	padding-left: 1.5rem;
+	margin-bottom: 1.25rem;
+}
+
+.post-content li {
+	margin-bottom: 0.4rem;
+}
+
+.post-content blockquote {
+	border-left: 4px solid var(--color-primary);
+	margin: 1.75rem 0;
+	padding: 0.75rem 1.25rem;
+	background-color: var(--color-bg-alt);
+	color: var(--color-text-light);
+	font-style: italic;
+}
+
+/* Images embedded in post body */
+.post-content img {
+	width: 100%;
+	border-radius: 6px;
+	margin: 1.5rem 0;
+}
+
+/* ------------------------------------------------------------
+   RESPONSIVE
+   ------------------------------------------------------------ */
+@media (max-width: 600px) {
+	:root {
+		--post-hero-height: 240px;
+	}
+
+	.post-title {
+		font-size: var(--font-size-h2);
+	}
+}

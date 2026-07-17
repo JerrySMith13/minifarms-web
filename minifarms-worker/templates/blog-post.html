@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!-- data-dynamic="title" is also set on <title> so page tab reflects the post -->
+		<title data-dynamic="title">Blog Post | Mini Farms USA</title>
+		<link rel="stylesheet" href="css/common.css" />
+		<link rel="stylesheet" href="css/blog-post.css" />
+	</head>
+	<body>
+		<!-- ================= TOP NAVIGATION ================= -->
+		<header class="navbar">
+			<div class="navbar-logo">
+				<div class="navbar-logo-placeholder">MF</div>
+				<span class="navbar-logo-text">Mini Farms USA</span>
+			</div>
+			<nav class="navbar-links">
+				<ul>
+					<li><a href="index.html">Home</a></li>
+					<li><a href="about.html">About Us</a></li>
+					<li><a href="blog.html" class="active">Blog</a></li>
+					<li><a href="contact.html">Contact Us</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<!-- ================= POST HERO IMAGE ================= -->
+		<!--
+			data-dynamic="image-link" on the <img> src attribute.
+			The Worker should set both src and alt when populating this template.
+			The surrounding .post-hero div provides the fixed-height frame.
+		-->
+		<div class="post-hero">
+			<img
+				class="post-hero-image"
+				data-dynamic="image-link"
+				src=""
+				alt=""
+			/>
+		</div>
+
+		<!-- ================= POST CONTENT ================= -->
+		<main class="section-padding">
+			<div class="container post-layout">
+
+				<!-- Breadcrumb back to listing -->
+				<nav class="post-breadcrumb" aria-label="Breadcrumb">
+					<a href="blog.html">&larr; Back to Blog</a>
+				</nav>
+
+				<article class="post-article">
+
+					<!-- Meta row: category + author -->
+					<div class="post-meta">
+						<!--
+							data-dynamic="category" — fill with the post's category label,
+							e.g. "Farm Updates", "Community"
+						-->
+						<span class="post-category" data-dynamic="category">Category</span>
+						<span class="post-meta-sep">&middot;</span>
+						<!--
+							data-dynamic="author" — fill with the author's display name,
+							e.g. "Jane Smith".
+						-->
+						<span class="post-author">By <strong data-dynamic="author">Author Name</strong></span>
+					</div>
+
+					<!--
+						data-dynamic="title" — fill with the post's full title.
+						This is the on-page <h1>; the same attribute on <title> above
+						should receive the same value so the browser tab matches.
+					-->
+					<h1 class="post-title" data-dynamic="title">Post Title</h1>
+
+					<!--
+						data-dynamic="content" — fill with the post body HTML.
+						Supports standard block elements: <p>, <h2>–<h4>, <ul>, <ol>,
+						<blockquote>, <img>, <a>. The .post-content CSS below styles
+						all of them without requiring extra classes.
+					-->
+					<div class="post-content" data-dynamic="content">
+						<p>Post content goes here.</p>
+					</div>
+				</article>
+			</div>
+		</main>
+
+		<!-- ================= FOOTER ================= -->
+		<footer class="site-footer">
+			<div class="footer-content">
+				<p class="footer-copyright">
+					&copy; 2026 Mini Farms USA. All rights reserved.
+				</p>
+				<nav class="footer-links">
+					<ul>
+						<li><a href="index.html">Home</a></li>
+						<li><a href="about.html">About Us</a></li>
+						<li><a href="contact.html">Contact Us</a></li>
+					</ul>
+				</nav>
+			</div>
+		</footer>
+	</body>
+</html>
