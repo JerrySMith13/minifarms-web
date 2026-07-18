@@ -5,11 +5,14 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "minifarms-worker",
-	"main": "src/index.ts",
+	"main": "src/main.ts",
 	"compatibility_date": "2026-07-14",
 	"assets": {
 		// The path to the directory containing the `index.html` file to be served at `/`
-		"directory": "./public"
+		"directory": "./public",
+		"binding": "ASSETS",
+		// Set this for all assets we want to pre-render
+		"run_worker_first": []
 	},
 	"observability": {
 		"enabled": true
@@ -23,5 +26,11 @@
       "binding": "MINIFARMS_BLOG_KV",
       "id": "51f0171098db4ee6ac7853223f21f7c8"
     }
+  ],
+  "rules": [
+	{
+		"type": "Text",
+		"globs": ["**/*.html"]
+	}
   ]
 }
