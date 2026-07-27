@@ -1,0 +1,308 @@
+/* ============================================================
+   COMMON.CSS
+   Shared styles used on every page: color palette, fonts,
+   top navigation bar, buttons, footer, and layout helpers.
+
+   Load this file BEFORE the page-specific stylesheet, e.g.:
+     <link rel="stylesheet" href="css/common.css" />
+     <link rel="stylesheet" href="css/home.css" />
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. COLOR PALETTE
+   Change any value below to re-color the entire site at once.
+   Every other file in this project reads colors from these
+   variables instead of hard-coding hex codes.
+   ------------------------------------------------------------ */
+:root {
+	/* Brand colors */
+	--color-primary: #2e7d32; /* main brand green - buttons, links, highlights */
+	--color-primary-dark: #1b5e20; /* used for hover states on primary elements */
+	--color-secondary: #f9a825; /* accent/gold - used sparingly for callouts */
+
+	/* Neutrals */
+	--color-text: #222222; /* default body text color */
+	--color-text-light: #5a5a5a; /* secondary/muted text, e.g. captions, meta info */
+	--color-bg: #ffffff; /* default page background */
+	--color-bg-alt: #f5f5f0; /* light section background, used to separate sections */
+	--color-border: #e0e0e0; /* borders/dividers */
+
+	/* Navbar + footer (dark bar at top/bottom of every page) */
+	--color-nav-bg: #1b1b1b;
+	--color-nav-text: #ffffff;
+	--color-nav-text-hover: var(--color-secondary);
+
+	/* Overlay used on top of background images so text stays readable */
+	--color-overlay: rgba(0, 0, 0, 0.45);
+}
+
+/* ------------------------------------------------------------
+   2. FONTS
+   Change the font family or base size here to update it
+   everywhere. --font-scale is a multiplier you can nudge up or
+   down (e.g. 1.1) to make ALL text on the site bigger/smaller
+   at once without touching every heading individually.
+   ------------------------------------------------------------ */
+:root {
+	--font-heading: Georgia, "Times New Roman", serif; /* used for h1-h4 */
+	--font-body: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* used for paragraphs, links, buttons */
+
+	--font-scale: 1; /* bump to 1.1 or 1.2 to scale all text up site-wide */
+	--font-size-base: calc(1rem * var(--font-scale)); /* body copy */
+	--font-size-small: calc(0.875rem * var(--font-scale)); /* captions, meta text */
+	--font-size-h1: calc(2.5rem * var(--font-scale));
+	--font-size-h2: calc(2rem * var(--font-scale));
+	--font-size-h3: calc(1.5rem * var(--font-scale));
+}
+
+/* ------------------------------------------------------------
+   3. LAYOUT SIZING
+   Change --container-max-width to make the overall content
+   column wider/narrower on large screens. --section-padding-y
+   controls the vertical breathing room around every section.
+   ------------------------------------------------------------ */
+:root {
+	--container-max-width: 1100px;
+	--section-padding-y: 4rem;
+	--section-padding-x: 1.5rem;
+}
+
+/* ------------------------------------------------------------
+   4. RESET / BASE ELEMENTS
+   ------------------------------------------------------------ */
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-body);
+	font-size: var(--font-size-base);
+	color: var(--color-text);
+	background-color: var(--color-bg);
+	line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	font-family: var(--font-heading);
+	color: var(--color-text);
+	margin-top: 0;
+}
+
+h1 {
+	font-size: var(--font-size-h1);
+}
+h2 {
+	font-size: var(--font-size-h2);
+}
+h3 {
+	font-size: var(--font-size-h3);
+}
+
+a {
+	color: var(--color-primary);
+	text-decoration: none;
+}
+a:hover {
+	color: var(--color-primary-dark);
+	text-decoration: underline;
+}
+
+img {
+	max-width: 100%;
+	display: block;
+}
+
+/* Reusable content wrapper - keeps text from stretching full browser width */
+.container {
+	max-width: var(--container-max-width);
+	margin: 0 auto;
+	padding: 0 var(--section-padding-x);
+}
+
+/* Add to any <section> to get consistent top/bottom spacing */
+.section-padding {
+	padding-top: var(--section-padding-y);
+	padding-bottom: var(--section-padding-y);
+}
+
+/* Alternate section background, for visually separating stacked sections */
+.section-alt-bg {
+	background-color: var(--color-bg-alt);
+}
+
+/* ------------------------------------------------------------
+   5. TOP NAVIGATION BAR
+   Structure expected in every page's HTML:
+
+   <header class="navbar">
+     <div class="navbar-logo">...</div>
+     <nav class="navbar-links"><ul><li><a>...</a></li></ul></nav>
+   </header>
+
+   Change --color-nav-bg above to recolor the bar. Change
+   .navbar-logo width/height to resize the logo placeholder.
+   ------------------------------------------------------------ */
+.navbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	background-color: var(--color-nav-bg);
+	padding: 0.75rem var(--section-padding-x);
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
+
+/* Logo placeholder box on the left. Swap the inner <div> for an
+   <img src="images/logo.png" alt="..."> once real artwork exists;
+   width/height here control the reserved logo footprint either way. */
+.navbar-logo {
+	display: flex;
+	align-items: center;
+	height: 48px;
+}
+
+.navbar-logo-placeholder {
+	width: 48px;
+	height: 48px;
+	border-radius: 6px;
+	background-color: var(--color-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--color-nav-text);
+	font-family: var(--font-heading);
+	font-weight: bold;
+	font-size: 1.1rem;
+	margin-right: 0.75rem;
+}
+
+.navbar-logo-text {
+	color: var(--color-nav-text);
+	font-family: var(--font-heading);
+	font-size: 1.25rem;
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+/* Right-hand link list */
+.navbar-links ul {
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	gap: 1.75rem;
+}
+
+.navbar-links a {
+	color: var(--color-nav-text);
+	font-family: var(--font-body);
+	font-size: var(--font-size-small);
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	text-decoration: none;
+}
+
+.navbar-links a:hover,
+.navbar-links a.active {
+	color: var(--color-nav-text-hover);
+	text-decoration: underline;
+}
+
+/* Stack the nav links under the logo on narrow/mobile screens */
+@media (max-width: 640px) {
+	.navbar {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.75rem;
+	}
+	.navbar-links ul {
+		gap: 1.25rem;
+		flex-wrap: wrap;
+	}
+}
+
+/* ------------------------------------------------------------
+   6. BUTTONS
+   Use .btn on any <a> or <button>, plus a modifier class.
+   ------------------------------------------------------------ */
+.btn {
+	display: inline-block;
+	padding: 0.75rem 1.75rem;
+	border-radius: 4px;
+	font-size: var(--font-size-small);
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	border: 2px solid transparent;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.btn-primary {
+	background-color: var(--color-primary);
+	color: #ffffff;
+}
+.btn-primary:hover {
+	background-color: var(--color-primary-dark);
+	color: #ffffff;
+	text-decoration: none;
+}
+
+.btn-outline {
+	background-color: transparent;
+	border-color: #ffffff;
+	color: #ffffff;
+}
+.btn-outline:hover {
+	background-color: #ffffff;
+	color: var(--color-text);
+	text-decoration: none;
+}
+
+/* ------------------------------------------------------------
+   7. FOOTER
+   Structure expected:
+   <footer class="site-footer">
+     <div class="footer-content">...</div>
+   </footer>
+   ------------------------------------------------------------ */
+.site-footer {
+	background-color: var(--color-nav-bg);
+	color: var(--color-nav-text);
+	padding: 2.5rem var(--section-padding-x);
+	margin-top: 3rem;
+}
+
+.footer-content {
+	max-width: var(--container-max-width);
+	margin: 0 auto;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+}
+
+.footer-links ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	gap: 1.25rem;
+}
+
+.footer-links a {
+	color: var(--color-nav-text);
+	font-size: var(--font-size-small);
+}
+
+.footer-copyright {
+	font-size: var(--font-size-small);
+	color: #bbbbbb;
+}

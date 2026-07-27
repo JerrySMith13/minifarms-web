@@ -1,0 +1,77 @@
+/* ============================================================
+   CONTACT.CSS
+   Page-specific styles for contact.html - a list of ways to
+   get in touch (email, phone, address, social links).
+   Load AFTER common.css.
+   ============================================================ */
+
+.contact-intro {
+	max-width: 640px;
+	margin-bottom: 2.5rem;
+}
+
+/* ------------------------------------------------------------
+   CONTACT METHOD LIST
+   Each way to reach the charity is one .contact-method row.
+   TO ADD A NEW CONTACT METHOD: copy a whole <li class="contact-method">
+   block in the HTML - no CSS changes needed.
+   ------------------------------------------------------------ */
+.contact-methods {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	max-width: 640px;
+}
+
+.contact-method {
+	display: flex;
+	align-items: center;
+	gap: 1.25rem;
+	padding: 1.25rem;
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	transition: border-color 0.15s ease-in-out;
+}
+
+.contact-method:hover {
+	border-color: var(--color-primary);
+}
+
+/* Round icon placeholder. Replace the letter/symbol in the HTML
+   with an <img> or icon font/SVG once real icons are available. */
+.contact-icon {
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background-color: var(--color-primary);
+	color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+
+.contact-method-label {
+	font-size: var(--font-size-small);
+	color: var(--color-text-light);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	margin: 0 0 0.15rem;
+}
+
+.contact-method-value {
+	font-size: 1.1rem;
+	font-weight: bold;
+}
+
+.contact-method-value a {
+	color: var(--color-text);
+}
+.contact-method-value a:hover {
+	color: var(--color-primary);
+}

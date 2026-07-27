@@ -1,0 +1,82 @@
+/* ============================================================
+   BLOG.CSS
+   Page-specific styles for blog.html - a listing of blog post
+   preview cards. Load AFTER common.css.
+   ============================================================ */
+
+.blog-header {
+	max-width: 640px;
+	margin-bottom: 2.5rem;
+}
+
+/* ------------------------------------------------------------
+   BLOG POST GRID
+   TO CHANGE HOW MANY CARDS FIT PER ROW: edit the "3" in
+   repeat(3, 1fr) below (e.g. use 2 for wider cards).
+   ------------------------------------------------------------ */
+.blog-list {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 2rem;
+}
+
+.blog-post-card {
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.blog-post-image {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	background-color: var(--color-bg-alt); /* shows while the real image loads/if missing */
+}
+
+.blog-post-body {
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.blog-post-meta {
+	font-size: var(--font-size-small);
+	color: var(--color-text-light);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	margin-bottom: 0.5rem;
+}
+
+.blog-post-title {
+	font-size: 1.25rem;
+	margin-bottom: 0.5rem;
+}
+
+.blog-post-excerpt {
+	color: var(--color-text);
+	font-size: var(--font-size-small);
+	margin-bottom: 1rem;
+	flex-grow: 1;
+}
+
+.blog-post-readmore {
+	font-size: var(--font-size-small);
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+/* Reflow to 2 columns on tablets, 1 column on phones */
+@media (max-width: 900px) {
+	.blog-list {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+@media (max-width: 600px) {
+	.blog-list {
+		grid-template-columns: 1fr;
+	}
+}
