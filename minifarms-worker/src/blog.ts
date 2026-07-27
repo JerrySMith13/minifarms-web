@@ -1,6 +1,7 @@
 import blogListText from '../templates/blog.html'
 import blogCard from '../templates/partials/blog-card.html'
 import blogPost from '../templates/blog-post.html'
+import notFoundPage from '../templates/404.html'
 import blogPostSchema from '../schemas/blogPost.json'
 import { samplePosts } from './sampleBlogPosts'
 
@@ -104,20 +105,26 @@ export async function blogHandle(request: Request, env: Env){
     else if (url.pathname.startsWith("/blog/entry")){
         const key = url.searchParams.get("key");
         if (key == null){
-            //TODO return global 404 here
-            return new Response("not found");
+            return new Response(notFoundPage, {
+                status: 404,
+                headers: { "content-type": "text/html;charset=UTF-8" }
+            });
         }
 
         const blogEntry = await env.MINIFARMS_BLOG_KV.get(key, "json");
         if (blogEntry == null){
-            //TODO return special "blog not found" 404 here
-            return new Response("blog not found");
+            return new Response(notFoundPage, {
+                status: 404,
+                headers: { "content-type": "text/html;charset=UTF-8" }
+            });
         }
 
         const blogObj = postFromObj(blogEntry, key);
         if (blogObj == null){
-            //TODO: fix for better 404
-            return new Response("catastrophic error")
+            return new Response(notFoundPage, {
+                status: 404,
+                headers: { "content-type": "text/html;charset=UTF-8" }
+            });
         }
 
         const blogContent = createPost(blogPost, blogObj);
@@ -128,6 +135,9 @@ export async function blogHandle(request: Request, env: Env){
         
     }
     else {
-        return new Response("404 error", { status: 404 }) // Replace with real 404 page
+        return new Response(notFoundPage, {
+            status: 404,
+            headers: { "content-type": "text/html;charset=UTF-8" }
+        })
     }
 }
