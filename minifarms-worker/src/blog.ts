@@ -1,5 +1,6 @@
 import blogListText from '../templates/blog.html'
 import blogCard from '../templates/partials/blog-card.html'
+import blogPost from '../templates/blog-post.html'
 import blogPostSchema from '../schemas/blogPost.json'
 import { samplePosts } from './sampleBlogPosts'
 
@@ -12,6 +13,7 @@ interface BlogPost{
     imgLink: string,
     category: string,
     author: string,
+    title: string,
     content: string,
     date: Date,
 }
@@ -27,7 +29,7 @@ function postFromObj(obj: any, key: string): BlogPost | null{
         }
     }
 
-    const { imgLink, category, author, content, date } = obj;
+    const { imgLink, category, author, title, content, date } = obj;
 
     if (
         typeof imgLink !== 'string' ||
@@ -44,7 +46,7 @@ function postFromObj(obj: any, key: string): BlogPost | null{
         return null;
     }
 
-    return { key, imgLink, category, author, content, date: parsedDate };
+    return { key, imgLink, category, author, title, content, date: parsedDate };
 }
 
 // This function will consume the template 
@@ -55,6 +57,7 @@ function createCard(card: string, post: BlogPost): string{
     template("[data-dynamic=image-link]").attr("src", post.imgLink);
     template("[data-dynamic=category]").text(post.category);
     template("[data-dynamic=author]").text(post.author);
+    template("[data-dynamic=title]").text(post.title);
     template("[data-dynamic=content]").text(post.content.substring(0, 200));
     template("[data-dynamic=date]").text(post.date.toDateString());
     return template.html();
@@ -67,7 +70,8 @@ function createPost(blog: string, post: BlogPost){
     template("[data-dynamic=image-link]").attr("src", post.imgLink);
     template("[data-dynamic=category]").text(post.category);
     template("[data-dynamic=author]").text(post.author);
-    template("[data-dynamic=content]").text(post.content.substring(0, 200));
+    template("[data-dynamic=title]").text(post.title);
+    template("[data-dynamic=content]").text(post.content);
     template("[data-dynamic=date]").text(post.date.toDateString());
     return template.html();
 }
@@ -107,8 +111,17 @@ export async function blogHandle(request: Request, env: Env){
         const blogEntry = await env.MINIFARMS_BLOG_KV.get(key, "json");
         if (blogEntry == null){
             //TODO return special "blog not found" 404 here
-            return new Response("blog not found")
+            return new Response("blog not found");
         }
+
+        const blogObj = postFromObj(blogEntry, key);
+        if (blogObj == null){
+            //TODO: fix for better 404
+            return new Response("catastrophic error")
+        }
+
+        const blogContent = createPost(blogPost, blogObj);
+        return new Response(blogContent);
         
         
     }
