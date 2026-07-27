@@ -20,6 +20,9 @@
 		"date": {
 			"type": "string",
 			"format": "date"
+		},
+		"title":{
+			"type": "string"
 		}
 	},
 	"required": ["imgLink", "category", "author", "content", "date"],
