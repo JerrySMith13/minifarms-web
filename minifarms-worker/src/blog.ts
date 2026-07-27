@@ -121,13 +121,9 @@ export async function blogHandle(request: Request, env: Env){
         }
 
         const blogContent = createPost(blogPost, blogObj);
-<<<<<<< HEAD
         return new Response(blogContent, {
             headers: { "content-type": "text/html;charset=UTF-8" }
         });
-=======
-        return new Response(blogContent);
->>>>>>> c16c63bf524ddcdf16e7a0f94ecf65fac5fc7ecd
         
         
     }
