@@ -1,0 +1,27 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://minifarms.com/schemas/blogPost.json",
+	"title": "BlogPost",
+	"type": "object",
+	"properties": {
+		"imgLink": {
+			"type": "string",
+			"format": "uri"
+		},
+		"category": {
+			"type": "string"
+		},
+		"author": {
+			"type": "string"
+		},
+		"content": {
+			"type": "string"
+		},
+		"date": {
+			"type": "string",
+			"format": "date"
+		}
+	},
+	"required": ["imgLink", "category", "author", "content", "date"],
+	"additionalProperties": false
+}

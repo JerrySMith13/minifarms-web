@@ -12,7 +12,7 @@
 		"directory": "./public",
 		"binding": "ASSETS",
 		// Set this for all assets we want to pre-render
-		"run_worker_first": []
+		"run_worker_first": ["/blog/*"]
 	},
 	"observability": {
 		"enabled": true
@@ -30,7 +30,8 @@
   "rules": [
 	{
 		"type": "Text",
-		"globs": ["**/*.html"]
+		"globs": ["**/*.html"],
+		"fallthrough": true
 	}
   ]
 }

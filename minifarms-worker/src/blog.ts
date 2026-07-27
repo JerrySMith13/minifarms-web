@@ -1,39 +1,118 @@
 import blogListText from '../templates/blog.html'
 import blogCard from '../templates/partials/blog-card.html'
+import blogPostSchema from '../schemas/blogPost.json'
+import { samplePosts } from './sampleBlogPosts'
 
 import * as cheerio from 'cheerio'
+
+import * as globalDecl from './globalDecl'
 
 interface BlogPost{
     key: string, //The key is just the key from our cloudflare KV cache. this will be appended to a url like /blog/entry?q=KEY to get our key
     imgLink: string,
     category: string,
     author: string,
-    content: string
+    content: string,
+    date: Date,
+}
+function postFromObj(obj: any, key: string): BlogPost | null{
+    if (!obj || typeof obj !== 'object'){
+        return null;
+        
+    }
+
+    for (const field of blogPostSchema.required){
+        if (obj[field] === undefined || obj[field] === null){
+            return null;
+        }
+    }
+
+    const { imgLink, category, author, content, date } = obj;
+
+    if (
+        typeof imgLink !== 'string' ||
+        typeof category !== 'string' ||
+        typeof author !== 'string' ||
+        typeof content !== 'string' ||
+        typeof date !== 'string'
+    ){
+        return null;
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())){
+        return null;
+    }
+
+    return { key, imgLink, category, author, content, date: parsedDate };
 }
 
-function createCard(template: cheerio.CheerioAPI, )
+// This function will consume the template 
+function createCard(card: string, post: BlogPost): string{
+    let template = cheerio.load(card);
+
+    template("[data-dynamic=link]").attr("href", "/blog/entry?key=/" + post.key);
+    template("[data-dynamic=image-link]").attr("src", post.imgLink);
+    template("[data-dynamic=category]").text(post.category);
+    template("[data-dynamic=author]").text(post.author);
+    template("[data-dynamic=content]").text(post.content.substring(0, 200));
+    template("[data-dynamic=date]").text(post.date.toDateString());
+    return template.html();
+}
+
+function createPost(blog: string, post: BlogPost){
+    let template = cheerio.load(blog);
+
+    template("[data-dynamic=link]").attr("href", "/blog/entry?key=/" + post.key);
+    template("[data-dynamic=image-link]").attr("src", post.imgLink);
+    template("[data-dynamic=category]").text(post.category);
+    template("[data-dynamic=author]").text(post.author);
+    template("[data-dynamic=content]").text(post.content.substring(0, 200));
+    template("[data-dynamic=date]").text(post.date.toDateString());
+    return template.html();
+}
 
 export async function blogHandle(request: Request, env: Env){
     const url = new URL(request.url)
-    if (!(url.pathname.startsWith("/blog"))){
-        //return 404 here
-    }
+    
     // returns rendered page of blog listings
     if (url.pathname.startsWith("/blog/list")){
     
-        const listData = await env.MINIFARMS_BLOG_KV.list();
+        const listDataPromise = env.MINIFARMS_BLOG_KV.list();
+
         let baseTemplate = cheerio.load(blogListText);
-        let cardTemplate = cheerio.load(blogCard);
         baseTemplate(".blog-post-card").remove(); // Remove the card template that's already in list
 
+        for (let key of (await listDataPromise).keys){
+            let obj = await env.MINIFARMS_BLOG_KV.get(key.name, "json");
+            if (obj == null) continue;
 
-        
-
-        
-        
+            const post = postFromObj(obj, key.name)
+            if (post == null) continue;
+            const card = createCard(blogCard, post)
+            baseTemplate(".blog-list").append(card);
+        }
+        return new Response(baseTemplate.html(), {
+            headers: { "content-type": "text/html;charset=UTF-8" }
+        })
         
     }
     else if (url.pathname.startsWith("/blog/entry")){
-        // return a specific rendered blog entry
+        const key = url.searchParams.get("key");
+        if (key == null){
+            //TODO return global 404 here
+            return new Response("not found");
+        }
+
+        const blogEntry = await env.MINIFARMS_BLOG_KV.get(key, "json");
+        if (blogEntry == null){
+            //TODO return special "blog not found" 404 here
+            return new Response("blog not found")
+        }
+        
+        
+    }
+    else {
+        return new Response("404 error", { status: 404 }) // Replace with real 404 page
     }
 }

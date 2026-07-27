@@ -9,7 +9,7 @@ export default {
         if (path.startsWith("/blog")){
             return await blogHandle(request, env)
         }
-        
 
+        return new Response("Not found", { status: 404 })
     }
 }

@@ -7,6 +7,7 @@
 	  image-link  — src URL for the card's thumbnail image
 	  category    — category label, e.g. "Farm Updates"
 	  author      — author display name, e.g. "Jane Smith"
+	  date        — post date, e.g. "January 1, 2026"
 	  title       — post title (also used as the image alt text)
 	  content     — short excerpt; Worker should truncate the full body to
 	                ~160 characters before injecting here
@@ -27,6 +28,8 @@
 			<span class="blog-post-category" data-dynamic="category">Category</span>
 			&middot;
 			By <span data-dynamic="author">Author Name</span>
+			&middot;
+			<span data-dynamic="date">Post Date</span>
 		</p>
 		<h3 class="blog-post-title" data-dynamic="title">Post Title</h3>
 		<p class="blog-post-excerpt" data-dynamic="content">Post excerpt goes here.</p>
