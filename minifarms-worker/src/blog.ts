@@ -3,11 +3,8 @@ import blogCard from '../templates/partials/blog-card.html'
 import blogPost from '../templates/blog-post.html'
 import notFoundPage from '../templates/404.html'
 import blogPostSchema from '../schemas/blogPost.json'
-import { samplePosts } from './sampleBlogPosts'
 
 import * as cheerio from 'cheerio'
-
-import * as globalDecl from './globalDecl'
 
 interface BlogPost{
     key: string, //The key is just the key from our cloudflare KV cache. this will be appended to a url like /blog/entry?q=KEY to get our key
@@ -77,7 +74,7 @@ function createPost(blog: string, post: BlogPost){
     return template.html();
 }
 
-export async function blogHandle(request: Request, env: Env){
+export async function handleBlog(request: Request, env: Env){
     const url = new URL(request.url)
     
     // returns rendered page of blog listings

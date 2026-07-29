@@ -1,5 +1,6 @@
 import notFoundPage from "../templates/404.html";
-import { blogHandle } from "./blog";
+import { handleBlog } from "./blog";
+import { handlePost } from "./post"
 
 export default {
 
@@ -8,7 +9,10 @@ export default {
         let path = url.pathname
 
         if (path.startsWith("/blog")){
-            return await blogHandle(request, env)
+            return await handleBlog(request, env)
+        }
+        else if (path.startsWith("/post")){
+            return await handlePost(request, env)
         }
 
         return new Response(notFoundPage, {

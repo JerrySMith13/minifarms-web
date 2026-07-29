@@ -25,7 +25,11 @@
     {
       "binding": "MINIFARMS_BLOG_KV",
       "id": "51f0171098db4ee6ac7853223f21f7c8"
-    }
+    },
+	{
+		"binding": "MINIFARMS_BLOG_AUTH",
+      	"id": "ae881064dcb841deb6ef16b0d139c9ff",
+	}
   ],
   "rules": [
 	{
