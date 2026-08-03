@@ -8,6 +8,17 @@ Basic flow for authorizing accounts:
 - if there is, then grab the matching sid in the auth KV cache and go through the motion of refreshing
 
 */
+
+async function getSession(request: Request){
+    const cookie = parseCookie(request.headers.get("Cookie") || "");
+    const sid = cookie.sid;
+    if (sid == undefined) return new Response(null, {
+        status: 308,
+        statusText: "Permanent Redirect",
+        headers: {"Location": `https://${HOST}/oauth/callback`}
+    })
+}
+
 export async function handlePost(request: Request, env: Env): Promise<Response>{
 
     
