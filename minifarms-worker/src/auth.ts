@@ -2,8 +2,11 @@ import { parseCookie, stringifySetCookie } from "cookie";
 import { URLSearchParams } from "node:url";
 import * as global from "./global"
 
-const INCOMPLETE_KEY_PREFIX = "incom:"
-const COMPLETE_KEY_PREFIX = "compl:"
+export const 
+    INCOMPLETE_KEY_PREFIX = "incom:",
+    COMPLETE_KEY_PREFIX = "compl:",
+    ALLOWLIST_KEY = "allowlist";
+
 const OAUTH_CLIENT_ID = "70b6fd74b5113859e9b71ad72e892a4a"
 
 function base64urlEncode(buffer: Uint8Array) {
@@ -121,7 +124,7 @@ class IncompleteSession{
 
 }
 
-class CompleteSession {
+export class CompleteSession {
     refresh_token: string;
     access_token: string;
     access_ttl: EpochTimeStamp; // This value is updated every time a new access token is requested
@@ -289,5 +292,6 @@ async function handleAuth(request: Request, env: Env){
 
 
     }
+
 }
 
