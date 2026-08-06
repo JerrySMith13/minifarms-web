@@ -1,18 +1,21 @@
 import notFoundPage from "../templates/404.html";
 import { handleBlog } from "./blog";
 import { handlePost } from "./post"
+import { handleAuth } from "./auth";
 
 export default {
 
     async fetch(request: Request, env: Env){
         const url = new URL(request.url);
-        let path = url.pathname
 
-        if (path.startsWith("/blog")){
-            return await handleBlog(request, env)
+        if (url.pathname.startsWith("/blog")){
+            return await handleBlog(request, env);
         }
-        else if (path.startsWith("/post")){
-            return await handlePost(request, env)
+        else if (url.pathname.startsWith("/post")){
+            return await handlePost(request, env);
+        }
+        else if (url.pathname.startsWith("/oauth") || url.pathname.startsWith("/auth")){
+            return await handleAuth(request, env);
         }
 
         return new Response(notFoundPage, {

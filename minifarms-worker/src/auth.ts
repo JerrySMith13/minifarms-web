@@ -200,8 +200,40 @@ function see_other(url: string, extra_headers?: Map<string, string>, body?: stri
     return res;
 }
 
-async function handleAuth(request: Request, env: Env){
+export async function handleAuth(request: Request, env: Env){
     const url = new URL(request.url);
+
+    if (request.method === "GET" && url.pathname.startsWith("/auth/status")){
+        const sid = parseCookie(request.headers.get("Cookie") || "").sid;
+
+        if (sid == undefined) {
+            return new Response("Not logged in.", { headers: { "Content-Type": "text/plain" } });
+        }
+
+        if (sid.startsWith(INCOMPLETE_KEY_PREFIX)) {
+            return new Response("Login in progress (OAuth flow started but not completed).", { headers: { "Content-Type": "text/plain" } });
+        }
+
+        if (sid.startsWith(COMPLETE_KEY_PREFIX)) {
+            const json = await env.MINIFARMS_BLOG_AUTH.get(sid);
+            if (json == null) {
+                return new Response("Session ID present but no session found in store. Please log in again.", { headers: { "Content-Type": "text/plain" } });
+            }
+            const session = CompleteSession.parse(json);
+            if (session == null) {
+                return new Response("Session data is malformed. Please log in again.", { headers: { "Content-Type": "text/plain" } });
+            }
+            const now = Math.floor(+new Date() / 1000);
+            const ttl_remaining = session.access_ttl - now;
+            const status = ttl_remaining > 0
+                ? `Logged in. Access token expires in ${ttl_remaining} seconds.`
+                : `Logged in, but access token has expired. A refresh may be needed.`;
+            return new Response(status, { headers: { "Content-Type": "text/plain" } });
+        }
+
+        return new Response("Unknown session state.", { headers: { "Content-Type": "text/plain" } });
+    }
+
     if (url.pathname.startsWith("/oauth/begin")){
         //first check for session already existing, and redirect to post if present
         const sid = parseCookie(request.headers.get("Cookie") || "").sid;

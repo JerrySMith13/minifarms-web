@@ -1,4 +1,4 @@
-# Mini Farms USA — Page Design System
+# Mini Farms USA — Page Design Skill
 
 This document describes how pages in this project are built, so a new page can
 be created that looks and behaves consistently with the existing ones
