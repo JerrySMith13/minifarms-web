@@ -172,6 +172,63 @@ export class CompleteSession {
 }
 
 
+export interface CloudflareUserInfo {
+    id: string;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    telephone?: string;
+    country?: string;
+    zipcode?: string;
+    two_factor_authentication_enabled?: boolean;
+    suspended?: boolean;
+}
+
+export async function fetchUserInfo(access_token: string): Promise<CloudflareUserInfo | null> {
+    let response: Response;
+    try {
+        response = await fetch("https://api.cloudflare.com/client/v4/user", {
+            headers: { "Authorization": `Bearer ${access_token}` },
+        });
+    } catch {
+        return null;
+    }
+
+    if (!response.ok) return null;
+
+    let body: unknown;
+    try {
+        body = await response.json();
+    } catch {
+        return null;
+    }
+
+    if (typeof body !== "object" || body === null) return null;
+    const envelope = body as Record<string, unknown>;
+    if (!envelope.success) return null;
+
+    const result = envelope.result;
+    if (typeof result !== "object" || result === null) return null;
+    const r = result as Record<string, unknown>;
+
+    if (typeof r.id !== "string") return null;
+    if (typeof r.email !== "string") return null;
+
+    return {
+        id: r.id,
+        email: r.email,
+        first_name:   typeof r.first_name   === "string"  ? r.first_name   : undefined,
+        last_name:    typeof r.last_name    === "string"  ? r.last_name    : undefined,
+        telephone:    typeof r.telephone    === "string"  ? r.telephone    : undefined,
+        country:      typeof r.country      === "string"  ? r.country      : undefined,
+        zipcode:      typeof r.zipcode      === "string"  ? r.zipcode      : undefined,
+        two_factor_authentication_enabled:
+            typeof r.two_factor_authentication_enabled === "boolean"
+                ? r.two_factor_authentication_enabled : undefined,
+        suspended: typeof r.suspended === "boolean" ? r.suspended : undefined,
+    };
+}
+
 async function logout(env: Env, sid: string): Promise<string>{
     await env.MINIFARMS_BLOG_AUTH.delete(sid);
     return stringifySetCookie({
@@ -225,10 +282,25 @@ export async function handleAuth(request: Request, env: Env){
             }
             const now = Math.floor(+new Date() / 1000);
             const ttl_remaining = session.access_ttl - now;
-            const status = ttl_remaining > 0
-                ? `Logged in. Access token expires in ${ttl_remaining} seconds.`
-                : `Logged in, but access token has expired. A refresh may be needed.`;
-            return new Response(status, { headers: { "Content-Type": "text/plain" } });
+            const token_status = ttl_remaining > 0
+                ? `Access token expires in ${ttl_remaining} seconds.`
+                : `Access token has expired. A refresh may be needed.`;
+
+            const user = await fetchUserInfo(session.access_token);
+            const user_lines = user == null
+                ? "User info: unavailable (token may be expired or insufficient scope)."
+                : [
+                    `Email:     ${user.email}`,
+                    `Name:      ${[user.first_name, user.last_name].filter(Boolean).join(" ") || "(not set)"}`,
+                    `User ID:   ${user.id}`,
+                    user.country   != null ? `Country:   ${user.country}`  : null,
+                    user.suspended ? `Status:    SUSPENDED` : null,
+                    user.two_factor_authentication_enabled != null
+                        ? `2FA:       ${user.two_factor_authentication_enabled ? "enabled" : "disabled"}` : null,
+                  ].filter(Boolean).join("\n");
+
+            const body = `Logged in.\n${token_status}\n\n${user_lines}`;
+            return new Response(body, { headers: { "Content-Type": "text/plain" } });
         }
 
         return new Response("Unknown session state.", { headers: { "Content-Type": "text/plain" } });
