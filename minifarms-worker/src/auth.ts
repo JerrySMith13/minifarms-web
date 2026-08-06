@@ -306,7 +306,7 @@ export async function handleAuth(request: Request, env: Env){
         return new Response("Unknown session state.", { headers: { "Content-Type": "text/plain" } });
     }
 
-    if (url.pathname.startsWith("/oauth/begin")){
+    else if (url.pathname.startsWith("/oauth/begin")){
         //first check for session already existing, and redirect to post if present
         const sid = parseCookie(request.headers.get("Cookie") || "").sid;
         if (!(sid==undefined)){
