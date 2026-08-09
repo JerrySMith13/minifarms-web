@@ -1,0 +1,46 @@
+/* ============================================================
+   AUTH.CSS
+   Page-specific styles for authentication status pages.
+   Load AFTER common.css.
+   ============================================================ */
+
+.auth-status-section {
+	min-height: 60vh;
+	display: flex;
+	align-items: center;
+	background-color: var(--color-bg-alt);
+}
+
+.auth-status-content {
+	max-width: 650px;
+	padding: 3rem;
+	text-align: center;
+	background-color: var(--color-bg);
+	border: 1px solid var(--color-border);
+	border-top: 4px solid var(--color-secondary);
+	border-radius: 8px;
+}
+
+.auth-status-label {
+	margin: 0 0 0.75rem;
+	color: var(--color-primary);
+	font-size: var(--font-size-small);
+	font-weight: bold;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.auth-status-content h1 {
+	margin-bottom: 1rem;
+}
+
+.auth-status-content > p:not(.auth-status-label) {
+	margin: 0 auto 2rem;
+	color: var(--color-text-light);
+}
+
+@media (max-width: 600px) {
+	.auth-status-content {
+		padding: 2rem 1.25rem;
+	}
+}

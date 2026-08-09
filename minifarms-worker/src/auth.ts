@@ -1,4 +1,4 @@
-import { parseCookie, stringifySetCookie } from "cookie";
+import { parseCookie, parseSetCookie, stringifySetCookie } from "cookie";
 import { URLSearchParams } from "node:url";
 import * as global from "./global"
 
@@ -8,6 +8,55 @@ export const
     ALLOWLIST_KEY = "allowlist";
 
 const OAUTH_CLIENT_ID = "70b6fd74b5113859e9b71ad72e892a4a"
+
+export class SessionError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "SessionError";
+    }
+}
+
+export class SessionNotFoundError extends SessionError {
+    constructor(key: string) {
+        super(`No session found for key: ${key}`);
+        this.name = "SessionNotFoundError";
+    }
+}
+
+export class SessionMalformedError extends SessionError {
+    constructor(key: string) {
+        super(`Session data is malformed for key: ${key}`);
+        this.name = "SessionMalformedError";
+    }
+}
+
+export class SessionExpiredError extends SessionError {
+    constructor(key: string) {
+        super(`Session has expired for key: ${key}`);
+        this.name = "SessionExpiredError";
+    }
+}
+
+export class UnknownSessionTypeError extends SessionError {
+    constructor(key: string) {
+        super(`Unrecognized session type for key: ${key}`);
+        this.name = "UnknownSessionTypeError";
+    }
+}
+
+export class AuthCodeMissingError extends Error {
+    constructor() {
+        super("OAuth authorization code not received from provider");
+        this.name = "AuthCodeMissingError";
+    }
+}
+
+export class TokenExchangeError extends Error {
+    constructor(reason: string) {
+        super(`Token exchange failed: ${reason}`);
+        this.name = "TokenExchangeError";
+    }
+}
 
 function base64urlEncode(buffer: Uint8Array) {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)))
@@ -28,7 +77,7 @@ async function generatePKCE() {
   return { verifier, challenge };
 }
 
-class IncompleteSession{
+export class IncompleteSession{
     pkce_verifier: string;
     oauth_state: string;
     revoke_when: EpochTimeStamp;
@@ -49,60 +98,21 @@ class IncompleteSession{
         const state = base64urlEncode(crypto.getRandomValues(new Uint8Array(16)));
         const revoke_when = Math.floor(+new Date() / 1000) + 3600; // revokes the pending session if link becomes stale
         const session = new IncompleteSession(verifier, state, revoke_when);
-        env.MINIFARMS_BLOG_AUTH.put(key, JSON.stringify(session));
+        try {
+            await env.MINIFARMS_BLOG_AUTH.put(key, JSON.stringify(session));
+        }   catch(e){
+            console.log({level: "high", error: e});
+        }
 
         return [new URLSearchParams({
             response_type: 'code',
             client_id: OAUTH_CLIENT_ID,
             redirect_uri: `https://${global.HOST}/oauth/callback`,
-            scope: 'workers-kv-storage.write',
+            scope: 'user-details.read',
             state: state,
             code_challenge: challenge,
             code_challenge_method: 'S256'
         }), key];
-    }
-    static async completeSession(env: Env, id: string, url_params: URLSearchParams): Promise<CompleteSession | null>{
-        //Boilerplate session fetching + parsing
-        if (!id.startsWith(INCOMPLETE_KEY_PREFIX)) return null;
-        const json = await env.MINIFARMS_BLOG_AUTH.get(id);
-        if (json == null) return null;
-        const session = IncompleteSession.parse(json);
-        if (session == null) return null;
-        if (session.revoke_when <= Math.floor(+new Date() / 1000)){
-            await env.MINIFARMS_BLOG_AUTH.delete(id);
-            return null; //TODO: refactor so we get specific error handling in function
-        }
-        
-        const code = url_params.get("code");
-        if (code == null) return null;
-        
-        if (session.oauth_state != url_params.get("oauth_state")) return null;
-
-        const response = await fetch('https://dash.cloudflare.com/oauth2/token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                grant_type:    'authorization_code',
-                code,
-                client_id:     OAUTH_CLIENT_ID,
-                redirect_uri: `https://${global.HOST}/oauth/callback`,
-                code_verifier: session.pkce_verifier, 
-            }),
-        });
-
-        const tokens = await response.text();
-        const complete_session = CompleteSession.parseTokenResponse(tokens);
-        await env.MINIFARMS_BLOG_AUTH.delete(id);
-        if (complete_session != null){
-            let key: string;
-            do {
-            key = COMPLETE_KEY_PREFIX + base64urlEncode(crypto.getRandomValues(new Uint8Array(10)));
-            }
-            while ((await env.MINIFARMS_BLOG_AUTH.get(key)) != null);
-
-            env.MINIFARMS_BLOG_AUTH.put(key, JSON.stringify(complete_session))
-        }
-        return complete_session;
     }
 
     static parse(json: string): IncompleteSession | null {
@@ -125,11 +135,11 @@ class IncompleteSession{
 }
 
 export class CompleteSession {
-    refresh_token: string;
+    refresh_token: string | undefined;
     access_token: string;
     access_ttl: EpochTimeStamp; // This value is updated every time a new access token is requested
 
-    constructor(refresh_token: string, access_token: string, access_ttl: number){
+    constructor(refresh_token: string | undefined, access_token: string, access_ttl: number){
         this.refresh_token = refresh_token;
         this.access_token = access_token;
         this.access_ttl = access_ttl;
@@ -145,11 +155,11 @@ export class CompleteSession {
         if (typeof parsed !== "object" || parsed === null) return null;
         const obj = parsed as Record<string, unknown>;
 
-        if (typeof obj.refresh_token !== "string") return null;
         if (typeof obj.access_token !== "string") return null;
         if (typeof obj.access_ttl !== "number") return null;
 
-        return new CompleteSession(obj.refresh_token, obj.access_token, obj.access_ttl);
+        const refresh_token = typeof obj.refresh_token === "string" ? obj.refresh_token : undefined;
+        return new CompleteSession(refresh_token, obj.access_token, obj.access_ttl);
     }
 
     static parseTokenResponse(json: string): CompleteSession | null {
@@ -163,70 +173,71 @@ export class CompleteSession {
         const obj = parsed as Record<string, unknown>;
 
         if (typeof obj.access_token !== "string") return null;
-        if (typeof obj.refresh_token !== "string") return null;
         if (typeof obj.expires_in !== "number") return null;
 
+        const refresh_token = typeof obj.refresh_token === "string" ? obj.refresh_token : undefined;
         const access_ttl = Math.floor(+new Date() / 1000) + obj.expires_in;
-        return new CompleteSession(obj.refresh_token, obj.access_token, access_ttl);
+        return new CompleteSession(refresh_token, obj.access_token, access_ttl);
     }
 }
 
+export async function getSession(key: string, env: Env): Promise<IncompleteSession | CompleteSession> {
+    let isComplete: boolean;
+    if (key.startsWith(COMPLETE_KEY_PREFIX)) {
+        isComplete = true;
+    } else if (key.startsWith(INCOMPLETE_KEY_PREFIX)) {
+        isComplete = false;
+    } else {
+        throw new UnknownSessionTypeError(key);
+    }
 
-export interface CloudflareUserInfo {
-    id: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-    telephone?: string;
-    country?: string;
-    zipcode?: string;
-    two_factor_authentication_enabled?: boolean;
-    suspended?: boolean;
+    const json = await env.MINIFARMS_BLOG_AUTH.get(key);
+    if (json == null) {
+        throw new SessionNotFoundError(key);
+    }
+
+    const now = Math.floor(+new Date() / 1000);
+
+    if (isComplete) {
+        const session = CompleteSession.parse(json);
+        if (session == null) {
+            throw new SessionMalformedError(key);
+        }
+        if (session.access_ttl <= now) {
+            throw new SessionExpiredError(key);
+        }
+        return session;
+    }
+
+    const session = IncompleteSession.parse(json);
+    if (session == null) {
+        throw new SessionMalformedError(key);
+    }
+    if (session.revoke_when <= now) {
+        throw new SessionExpiredError(key);
+    }
+    return session;
 }
 
-export async function fetchUserInfo(access_token: string): Promise<CloudflareUserInfo | null> {
-    let response: Response;
+export async function fetchUserId(access_token: string): Promise<string | null> {
+    // First, get the user ID from the OAuth userinfo endpoint
+    let userinfo_response: Response;
     try {
-        response = await fetch("https://api.cloudflare.com/client/v4/user", {
+        userinfo_response = await fetch("https://dash.cloudflare.com/oauth2/userinfo", {
             headers: { "Authorization": `Bearer ${access_token}` },
         });
-    } catch {
-        return null;
-    }
+    } catch { return null; }
+    if (!userinfo_response.ok) return null;
 
-    if (!response.ok) return null;
-
-    let body: unknown;
+    let userinfo: unknown;
     try {
-        body = await response.json();
-    } catch {
-        return null;
-    }
+        userinfo = await userinfo_response.json();
+    } catch { return null; }
+    if (typeof userinfo !== "object" || userinfo === null) return null;
+    const userinfo_obj = userinfo as Record<string, unknown>;
+    if (typeof userinfo_obj.sub !== "string") return null;
+    return userinfo_obj.sub;
 
-    if (typeof body !== "object" || body === null) return null;
-    const envelope = body as Record<string, unknown>;
-    if (!envelope.success) return null;
-
-    const result = envelope.result;
-    if (typeof result !== "object" || result === null) return null;
-    const r = result as Record<string, unknown>;
-
-    if (typeof r.id !== "string") return null;
-    if (typeof r.email !== "string") return null;
-
-    return {
-        id: r.id,
-        email: r.email,
-        first_name:   typeof r.first_name   === "string"  ? r.first_name   : undefined,
-        last_name:    typeof r.last_name    === "string"  ? r.last_name    : undefined,
-        telephone:    typeof r.telephone    === "string"  ? r.telephone    : undefined,
-        country:      typeof r.country      === "string"  ? r.country      : undefined,
-        zipcode:      typeof r.zipcode      === "string"  ? r.zipcode      : undefined,
-        two_factor_authentication_enabled:
-            typeof r.two_factor_authentication_enabled === "boolean"
-                ? r.two_factor_authentication_enabled : undefined,
-        suspended: typeof r.suspended === "boolean" ? r.suspended : undefined,
-    };
 }
 
 async function logout(env: Env, sid: string): Promise<string>{
@@ -257,10 +268,31 @@ function see_other(url: string, extra_headers?: Map<string, string>, body?: stri
     return res;
 }
 
+function routeError(err: Error, extra_headers?: Map<string, string>): Response {
+    let target: string;
+    if (err instanceof AuthCodeMissingError) {
+        target = "/auth-code-missing.html";
+    } else if (err instanceof TokenExchangeError) {
+        target = "/auth-token-error.html";
+    } else {
+        target = "/auth-error.html";
+    }
+
+    const logout_cookie = stringifySetCookie({
+        name: "sid",
+        value: "",
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax"
+    })
+    extra_headers?.set("Set-Cookie", logout_cookie);
+    return see_other(target, extra_headers);
+}
+
 export async function handleAuth(request: Request, env: Env){
     const url = new URL(request.url);
 
-    if (request.method === "GET" && url.pathname.startsWith("/auth/status")){
+    if (request.method === "GET" && url.pathname.startsWith("/oauth/status")){
         const sid = parseCookie(request.headers.get("Cookie") || "").sid;
 
         if (sid == undefined) {
@@ -272,35 +304,21 @@ export async function handleAuth(request: Request, env: Env){
         }
 
         if (sid.startsWith(COMPLETE_KEY_PREFIX)) {
-            const json = await env.MINIFARMS_BLOG_AUTH.get(sid);
-            if (json == null) {
-                return new Response("Session ID present but no session found in store. Please log in again.", { headers: { "Content-Type": "text/plain" } });
-            }
-            const session = CompleteSession.parse(json);
-            if (session == null) {
-                return new Response("Session data is malformed. Please log in again.", { headers: { "Content-Type": "text/plain" } });
-            }
-            const now = Math.floor(+new Date() / 1000);
-            const ttl_remaining = session.access_ttl - now;
-            const token_status = ttl_remaining > 0
-                ? `Access token expires in ${ttl_remaining} seconds.`
-                : `Access token has expired. A refresh may be needed.`;
+            try {
+                const session = await getSession(sid, env) as CompleteSession;
+                const now = Math.floor(+new Date() / 1000);
+                const ttl_remaining = session.access_ttl - now;
+                const token_status = `Access token expires in ${ttl_remaining} seconds.`;
 
-            const user = await fetchUserInfo(session.access_token);
-            const user_lines = user == null
-                ? "User info: unavailable (token may be expired or insufficient scope)."
-                : [
-                    `Email:     ${user.email}`,
-                    `Name:      ${[user.first_name, user.last_name].filter(Boolean).join(" ") || "(not set)"}`,
-                    `User ID:   ${user.id}`,
-                    user.country   != null ? `Country:   ${user.country}`  : null,
-                    user.suspended ? `Status:    SUSPENDED` : null,
-                    user.two_factor_authentication_enabled != null
-                        ? `2FA:       ${user.two_factor_authentication_enabled ? "enabled" : "disabled"}` : null,
-                  ].filter(Boolean).join("\n");
-
-            const body = `Logged in.\n${token_status}\n\n${user_lines}`;
-            return new Response(body, { headers: { "Content-Type": "text/plain" } });
+                const user = await fetchUserId(session.access_token);
+                const body = `User ID: \n${user}\n${token_status}\n`;
+                return new Response(body, { headers: { "Content-Type": "text/plain" } });
+            } catch (err) {
+                if (err instanceof SessionError) {
+                    return routeError(err);
+                }
+                return routeError(new SessionError("Unexpected error checking session status"));
+            }
         }
 
         return new Response("Unknown session state.", { headers: { "Content-Type": "text/plain" } });
@@ -311,7 +329,7 @@ export async function handleAuth(request: Request, env: Env){
         const sid = parseCookie(request.headers.get("Cookie") || "").sid;
         if (!(sid==undefined)){
             if (sid.startsWith(INCOMPLETE_KEY_PREFIX)){
-                //TODO: return a page that says "complete signin" here
+                return see_other("/auth-in-progress.html");
             }
             else if (sid.startsWith(COMPLETE_KEY_PREFIX)){
                 return see_other(`https://${global.HOST}/post`);
@@ -335,45 +353,57 @@ export async function handleAuth(request: Request, env: Env){
         if (sid == undefined) return see_other(`https://${global.HOST}/oauth/begin`);
         if (sid.startsWith(COMPLETE_KEY_PREFIX)) return see_other(`https://${global.HOST}/post`);
 
-        const current_session_json = await env.MINIFARMS_BLOG_AUTH.get(sid);
-        if (current_session_json == null) return see_other(`https://${global.HOST}/oauth/begin`);
-
-        const current_session = IncompleteSession.parse(current_session_json);
-        if (current_session == null) {
-            const new_cookie = await logout(env, sid);
-            return see_other("insert url here", new Map([["Set-Cookie", new_cookie]])) //TODO: make an error page that says "error logging in, please try again"
+        let current_session: IncompleteSession;
+        try {
+            const session = await getSession(sid, env);
+            if (!(session instanceof IncompleteSession)) {
+                throw new UnknownSessionTypeError(sid);
+            }
+            current_session = session;
+        } catch (err) {
+            const cookie = await logout(env, sid);
+            if (err instanceof SessionError) {
+                return routeError(err, new Map([["Set-Cookie", cookie]]));
+            }
+            return routeError(new SessionError("Unexpected error during login"), new Map([["Set-Cookie", cookie]]));
         }
 
         if (current_session.oauth_state != url.searchParams.get("state")){
             const new_cookie = await logout(env, sid);
-            return see_other("insert url here", new Map([["Set-Cookie", new_cookie]]))
+            return routeError(new SessionError("OAuth state mismatch"), new Map([["Set-Cookie", new_cookie]]));
         }
 
         const grant = url.searchParams.get("code");
-        if (grant == null) return see_other("insert url here"); //TODO: return error page stating grant couldn't be found
+        if (grant == null) return routeError(new AuthCodeMissingError());
 
-        const response = await fetch("https://dash.cloudflare.com/oauth2/token", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-                grant_type: "authorization_code",
-                code: grant,
-                client_id: OAUTH_CLIENT_ID,
-                redirect_uri: `https://${global.HOST}/oauth/callback`,
-                code_verifier: current_session.pkce_verifier,   // proves you initiated the flow — no secret needed
-            }),
-        });
+        let token_response: Response;
+        try {
+            token_response = await fetch("https://dash.cloudflare.com/oauth2/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    grant_type: "authorization_code",
+                    code: grant,
+                    client_id: OAUTH_CLIENT_ID,
+                    redirect_uri: `https://${global.HOST}/oauth/callback`,
+                    code_verifier: current_session.pkce_verifier,
+                }),
+            });
+        } catch {
+            return routeError(new TokenExchangeError("network error contacting token endpoint"));
+        }
 
-        const tokens = await response.json();
+        if (!token_response.ok) return routeError(new TokenExchangeError(`token endpoint returned HTTP ${token_response.status}`));
 
-        if (typeof tokens !== "object" || tokens === null) return see_other("insert url here"); //TODO: return error page stating token response couldn't be parsed
-        const tokens_obj = tokens as Record<string, unknown>;
-        if (typeof tokens_obj.access_token !== "string") return see_other("insert url here");
-        if (typeof tokens_obj.refresh_token !== "string") return see_other("insert url here");
-        if (typeof tokens_obj.expires_in !== "number") return see_other("insert url here");
+        let token_text: string;
+        try {
+            token_text = await token_response.text();
+        } catch {
+            return routeError(new TokenExchangeError("failed to read token response body"));
+        }
 
-        const access_ttl = Math.floor(+new Date() / 1000) + tokens_obj.expires_in;
-        const complete_session = new CompleteSession(tokens_obj.refresh_token, tokens_obj.access_token, access_ttl);
+        const complete_session = CompleteSession.parseTokenResponse(token_text);
+        if (complete_session == null) return routeError(new TokenExchangeError("invalid token response format"));
 
         await env.MINIFARMS_BLOG_AUTH.delete(sid);
         let key: string;
@@ -398,4 +428,3 @@ export async function handleAuth(request: Request, env: Env){
     }
 
 }
-

@@ -82,6 +82,9 @@ body {
 	color: var(--color-text);
 	background-color: var(--color-bg);
 	line-height: 1.6;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
 }
 
 h1,
@@ -133,6 +136,12 @@ img {
 /* Alternate section background, for visually separating stacked sections */
 .section-alt-bg {
 	background-color: var(--color-bg-alt);
+}
+
+/* Sticky footer: grow page content to push footer to bottom of viewport */
+body > section,
+body > main {
+	flex: 1 0 auto;
 }
 
 /* ------------------------------------------------------------
@@ -278,6 +287,7 @@ img {
 	color: var(--color-nav-text);
 	padding: 2.5rem var(--section-padding-x);
 	margin-top: 3rem;
+	flex-shrink: 0;
 }
 
 .footer-content {
