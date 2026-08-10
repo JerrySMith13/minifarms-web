@@ -1,11 +1,11 @@
 import { parseCookie, parseSetCookie, stringifySetCookie } from "cookie";
 import { URLSearchParams } from "node:url";
 import * as global from "./global"
+import { temporary_redirect } from "./global";
 
 export const 
     INCOMPLETE_KEY_PREFIX = "incom:",
-    COMPLETE_KEY_PREFIX = "compl:",
-    ALLOWLIST_KEY = "allowlist";
+    COMPLETE_KEY_PREFIX = "compl:";
 
 const OAUTH_CLIENT_ID = "70b6fd74b5113859e9b71ad72e892a4a"
 
@@ -240,7 +240,7 @@ export async function fetchUserId(access_token: string): Promise<string | null> 
 
 }
 
-async function logout(env: Env, sid: string): Promise<string>{
+export async function logout(env: Env, sid: string): Promise<string>{
     await env.MINIFARMS_BLOG_AUTH.delete(sid);
     return stringifySetCookie({
         name: "sid",
@@ -252,29 +252,16 @@ async function logout(env: Env, sid: string): Promise<string>{
     });
 }
 
-function see_other(url: string, extra_headers?: Map<string, string>, body?: string): Response{
-    const res = new Response(body, {
-                status: 303,
-                statusText: "See Other",
-                headers: {
-                    "Location": url,
-                }
-                });
-    if (extra_headers != undefined){
-        extra_headers.forEach((val: string, key: string) => {
-            res.headers.append(key, val)
-        });
-    }
-    return res;
-}
-
-function routeError(err: Error, extra_headers?: Map<string, string>): Response {
+export function routeError(err: Error, extra_headers?: Map<string, string>): Response {
     let target: string;
     if (err instanceof AuthCodeMissingError) {
         target = "/auth-code-missing.html";
     } else if (err instanceof TokenExchangeError) {
         target = "/auth-token-error.html";
-    } else {
+    } else if (err instanceof SessionExpiredError){
+        target = "/oauth/begin";
+    } 
+    else {
         target = "/auth-error.html";
     }
 
@@ -286,7 +273,7 @@ function routeError(err: Error, extra_headers?: Map<string, string>): Response {
         sameSite: "lax"
     })
     extra_headers?.set("Set-Cookie", logout_cookie);
-    return see_other(target, extra_headers);
+    return temporary_redirect(target, extra_headers);
 }
 
 export async function handleAuth(request: Request, env: Env){
@@ -329,10 +316,10 @@ export async function handleAuth(request: Request, env: Env){
         const sid = parseCookie(request.headers.get("Cookie") || "").sid;
         if (!(sid==undefined)){
             if (sid.startsWith(INCOMPLETE_KEY_PREFIX)){
-                return see_other("/auth-in-progress.html");
+                return temporary_redirect("/auth-in-progress.html");
             }
             else if (sid.startsWith(COMPLETE_KEY_PREFIX)){
-                return see_other(`https://${global.HOST}/post`);
+                return temporary_redirect(`https://${global.HOST}/post`);
             }
         }
 
@@ -345,13 +332,13 @@ export async function handleAuth(request: Request, env: Env){
             sameSite: "lax",
         })
         
-        return see_other(`https://dash.cloudflare.com/oauth2/authorize?${redir_params}`, new Map([["Set-Cookie", new_id]]));
+        return temporary_redirect(`https://dash.cloudflare.com/oauth2/authorize?${redir_params}`, new Map([["Set-Cookie", new_id]]));
     }
 
     else if (url.pathname.startsWith("/oauth/callback")){
         const sid = parseCookie(request.headers.get("Cookie") || "").sid;
-        if (sid == undefined) return see_other(`https://${global.HOST}/oauth/begin`);
-        if (sid.startsWith(COMPLETE_KEY_PREFIX)) return see_other(`https://${global.HOST}/post`);
+        if (sid == undefined) return temporary_redirect(`https://${global.HOST}/oauth/begin`);
+        if (sid.startsWith(COMPLETE_KEY_PREFIX)) return temporary_redirect(`https://${global.HOST}/post`);
 
         let current_session: IncompleteSession;
         try {
@@ -421,7 +408,7 @@ export async function handleAuth(request: Request, env: Env){
             secure: true,
             sameSite: "lax"
         });
-        return see_other(`https://${global.HOST}/post`, new Map([["Set-Cookie", cookie]]));
+        return temporary_redirect(`https://${global.HOST}/post`, new Map([["Set-Cookie", cookie]]));
         
 
 

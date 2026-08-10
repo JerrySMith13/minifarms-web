@@ -6,7 +6,7 @@ import blogPostSchema from '../schemas/blogPost.json'
 
 import * as cheerio from 'cheerio'
 
-interface BlogPost{
+export interface BlogPost{
     key: string, //The key is just the key from our cloudflare KV cache. this will be appended to a url like /blog/entry?q=KEY to get our key
     imgLink: string,
     category: string,
@@ -15,7 +15,7 @@ interface BlogPost{
     content: string,
     date: Date,
 }
-function postFromObj(obj: any, key: string): BlogPost | null{
+export function postFromObj(obj: any, key: string): BlogPost | null{
     if (!obj || typeof obj !== 'object'){
         return null;
         
@@ -44,7 +44,37 @@ function postFromObj(obj: any, key: string): BlogPost | null{
         return null;
     }
 
-    return { key, imgLink, category, author, title, content, date: parsedDate };
+	return { key, imgLink, category, author, title: title || "", content, date: parsedDate };
+}
+
+export function parseFormData(formData: FormData): BlogPost | null{
+	const imgLink = formData.get("imgLink");
+	const category = formData.get("category");
+	const author = formData.get("author");
+	const content = formData.get("content");
+	const date = formData.get("date");
+	const title = formData.get("title");
+
+	if (!imgLink || !category || !author || !content || !date){
+		return null;
+	}
+
+	const parsedDate = new Date(date.toString());
+	if (isNaN(parsedDate.getTime())){
+		return null;
+	}
+
+	const key = crypto.randomUUID();
+
+	return {
+		key,
+		imgLink: imgLink.toString(),
+		category: category.toString(),
+		author: author.toString(),
+		title: title ? title.toString() : "",
+		content: content.toString(),
+		date: parsedDate,
+	};
 }
 
 // This function will consume the template 
